@@ -1,12 +1,12 @@
 from discord.ext import commands
-from objects.bot import Placeholder
+from objects.bot import TicketBot
 from typing import (Optional, Literal)
 import discord
 from objects.discord_changes import Embed
 
 
 class Owner(commands.Cog):
-    def __init__(self, bot:Placeholder):
+    def __init__(self, bot:TicketBot):
         self.bot = bot
 
     async def cog_check(self, ctx:commands.Context):

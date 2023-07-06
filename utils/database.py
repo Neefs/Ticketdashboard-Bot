@@ -53,7 +53,22 @@ class Database(commands.Cog):
         async with self.pool.acquire() as conn:
             conn:asyncpg.Connection
             #CREATE TABLES HERE
-            #await conn.execute("")
+            await conn.execute("CREATE TABLE IF NOT EXISTS prefix(guild_id BIGINT, prefix varchar(6))")
+
+    async def get_prefix(self, guild_id) -> str:
+        async with self.pool.acquire() as conn:
+            conn:asyncpg.Connection
+            data = self.format_json(await conn.fetchrow("SELECT prefix FROM prefix WHERE guild_id = $1", guild_id))
+            return data.get("prefix")
+
+    async def add_prefix(self, guild_id, prefix=None) -> None:
+        if not prefix:
+            prefix = self.bot.default_prefix
+        async with self.pool.acquire() as conn:
+            conn:asyncpg.Connection
+            await conn.execute("INSERT INTO prefix(guild_id, prefix) VALUES ($1, $2)", guild_id, prefix)
+            
+            
 
 
         

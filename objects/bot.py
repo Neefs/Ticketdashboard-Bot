@@ -1,6 +1,8 @@
 import logging
 import os
+from typing import List, Union
 from discord.ext import commands
+from discord.message import Message
 from utils.database import Database
 import discord
 from objects.discord_changes import Embed
@@ -9,10 +11,10 @@ import aiohttp
 import traceback as tb
 import json
 
-class Placeholder(commands.AutoShardedBot):
+class TicketBot(commands.AutoShardedBot):
     def __init__(self, **options):
-        self.prefix = options.get("prefix", ".")
-        super().__init__(commands.when_mentioned_or(self.prefix), **options)
+        self.default_prefix = options.get("prefix", ".")
+        super().__init__(self.get_prefix, **options)
         self.db:Database =None
         self.session:aiohttp.ClientSession = None
 
@@ -65,6 +67,13 @@ class Placeholder(commands.AutoShardedBot):
         await self.session.close()
         await super().close()
     
+    async def get_prefix(self, message: Message):
+        prefix = await self.db.get_prefix(message.guild.id)
+        if not prefix:
+            await self.db.add_prefix(message.guild.id)
+            return self.default_prefix
+        print(prefix)
+        return prefix
 
     async def on_ready(self):
         self.logger.success(f"Logged on as {self.user}")
